@@ -130,7 +130,22 @@ npx prisma migrate dev
 npx prisma generate
 \`\`\`
 
-### 4. Run Development Server
+### 4. Configure Clerk Webhook (Recommended)
+
+The boilerplate includes a Clerk webhook endpoint at `/api/webhooks/clerk` that automatically creates users in your database when they sign up.
+
+**To enable this:**
+
+1. Go to Clerk Dashboard → Webhooks
+2. Click "Add Endpoint"
+3. Set URL to: `https://your-domain.com/api/webhooks/clerk` (for local dev, use ngrok)
+4. Subscribe to event: `user.created`
+5. Copy the "Signing Secret"
+6. Add to `.env.local`: `CLERK_WEBHOOK_SECRET=whsec_...`
+
+**Alternative:** Without webhooks, users are created lazily on first API call (default behavior).
+
+### 5. Run Development Server
 
 \`\`\`bash
 npm run dev
@@ -151,7 +166,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 │ │ └── example-form/ # Form example
 │ ├── api/ # API routes
 │ │ ├── user/ # User endpoints
-│ │ └── payment/ # Payment endpoints
+│ │ ├── payment/ # Payment endpoints
+│ │ └── webhooks/ # Webhook handlers
 │ ├── globals.css # Global styles
 │ ├── layout.tsx # Root layout
 │ └── page.tsx # Home page
@@ -273,17 +289,22 @@ git push -u origin main
 - `POST /api/payment/verify` - Verify payment signature
 - `POST /api/payment/webhook` - Handle Razorpay webhooks
 
+### Webhook API
+
+- `POST /api/webhooks/clerk` - Handle Clerk webhooks (user creation, updates)
+
 ## Environment Variables Reference
 
-| Variable                            | Description                 | Required |
-| ----------------------------------- | --------------------------- | -------- |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk publishable key       | Yes      |
-| `CLERK_SECRET_KEY`                  | Clerk secret key            | Yes      |
-| `DATABASE_URL`                      | Supabase pooling connection | Yes      |
-| `DIRECT_URL`                        | Supabase direct connection  | Yes      |
-| `RAZORPAY_KEY_ID`                   | Razorpay key ID             | Yes      |
-| `RAZORPAY_KEY_SECRET`               | Razorpay secret             | Yes      |
-| `RAZORPAY_WEBHOOK_SECRET`           | Razorpay webhook secret     | Yes      |
+| Variable                            | Description                  | Required    |
+| ----------------------------------- | ---------------------------- | ----------- |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk publishable key        | Yes         |
+| `CLERK_SECRET_KEY`                  | Clerk secret key             | Yes         |
+| `CLERK_WEBHOOK_SECRET`              | Clerk webhook signing secret | Recommended |
+| `DATABASE_URL`                      | Supabase pooling connection  | Yes         |
+| `DIRECT_URL`                        | Supabase direct connection   | Yes         |
+| `RAZORPAY_KEY_ID`                   | Razorpay key ID              | Yes         |
+| `RAZORPAY_KEY_SECRET`               | Razorpay secret              | Yes         |
+| `RAZORPAY_WEBHOOK_SECRET`           | Razorpay webhook secret      | Yes         |
 
 ## Security Notes
 
